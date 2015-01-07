@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Math;
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -123,7 +124,7 @@ namespace SoftwareKobo.UI.WinRT.Controls
                 else
                 {
                     currentLineSize.Direct += elementSize.Direct;
-                    currentLineSize.Indirect = Math.Max(currentLineSize.Indirect, elementSize.Indirect);
+                    currentLineSize.Indirect = Max(currentLineSize.Indirect, elementSize.Indirect);
                 }
             }
 
@@ -158,14 +159,14 @@ namespace SoftwareKobo.UI.WinRT.Controls
 
                 if (currentLineSize.Direct + elementSize.Direct > maximumSize.Direct)
                 {
-                    totalSize.Direct = Math.Max(currentLineSize.Direct, totalSize.Direct);
+                    totalSize.Direct = Max(currentLineSize.Direct, totalSize.Direct);
                     totalSize.Indirect += currentLineSize.Indirect;
 
                     currentLineSize = elementSize;
 
                     if (elementSize.Direct > maximumSize.Direct)
                     {
-                        totalSize.Direct = Math.Max(elementSize.Direct, totalSize.Direct);
+                        totalSize.Direct = Max(elementSize.Direct, totalSize.Direct);
                         totalSize.Indirect += elementSize.Indirect;
 
                         currentLineSize = new OrientedSize(Orientation);
@@ -174,11 +175,11 @@ namespace SoftwareKobo.UI.WinRT.Controls
                 else
                 {
                     currentLineSize.Direct += elementSize.Direct;
-                    currentLineSize.Indirect = Math.Max(currentLineSize.Indirect, elementSize.Indirect);
+                    currentLineSize.Indirect = Max(currentLineSize.Indirect, elementSize.Indirect);
                 }
             }
 
-            totalSize.Direct = Math.Max(currentLineSize.Direct, totalSize.Direct);
+            totalSize.Direct = Max(currentLineSize.Direct, totalSize.Direct);
             totalSize.Indirect += currentLineSize.Indirect;
 
             return new Size(totalSize.Width, totalSize.Height);
