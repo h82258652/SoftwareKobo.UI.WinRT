@@ -3,7 +3,7 @@ using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
-namespace SoftwareKobo.UI.WinRT
+namespace SoftwareKobo.UI.WinRT.Controls
 {
     /// <summary>
     /// 从左至右按顺序位置定位子元素，在包含框的边缘处将内容断开至下一行。后续排序按照从上至下或从右至左的顺序进行，具体取决于 WrapPanel.Orientation 属性的值。
