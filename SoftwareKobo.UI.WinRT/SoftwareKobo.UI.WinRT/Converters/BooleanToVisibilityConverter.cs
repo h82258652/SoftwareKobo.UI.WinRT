@@ -2,7 +2,7 @@
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 
-namespace SoftwareKobo.UI.WinRT
+namespace SoftwareKobo.UI.WinRT.Converters
 {
     public class BooleanToVisibilityConverter : IValueConverter
     {
