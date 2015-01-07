@@ -13,17 +13,17 @@ namespace SoftwareKobo.UI.WinRT.Controls
         /// <summary>
         /// 标识 WrapPanel.ItemHeight 依赖项属性。
         /// </summary>
-        public static readonly DependencyProperty ItemHeightProperty = DependencyProperty.Register("ItemHeight", typeof(double), typeof(WrapPanel), new PropertyMetadata(double.NaN, OnItemWidthOrHeightPropertyChanged));
+        public static readonly DependencyProperty ItemHeightProperty = DependencyProperty.Register(nameof(ItemHeight), typeof(double), typeof(WrapPanel), new PropertyMetadata(double.NaN, OnItemWidthOrHeightPropertyChanged));
 
         /// <summary>
         /// 标识 WrapPanel.ItemWidth 依赖项属性。
         /// </summary>
-        public static readonly DependencyProperty ItemWidthProperty = DependencyProperty.Register("ItemWidth", typeof(double), typeof(WrapPanel), new PropertyMetadata(double.NaN, OnItemWidthOrHeightPropertyChanged));
+        public static readonly DependencyProperty ItemWidthProperty = DependencyProperty.Register(nameof(ItemWidth), typeof(double), typeof(WrapPanel), new PropertyMetadata(double.NaN, OnItemWidthOrHeightPropertyChanged));
 
         /// <summary>
         /// 标识 WrapPanel.Orientation 依赖项属性。
         /// </summary>
-        public static readonly DependencyProperty OrientationProperty = DependencyProperty.Register("Orientation", typeof(Orientation), typeof(WrapPanel), new PropertyMetadata(Orientation.Horizontal, OnOrientationPropertyChanged));
+        public static readonly DependencyProperty OrientationProperty = DependencyProperty.Register(nameof(Orientation), typeof(Orientation), typeof(WrapPanel), new PropertyMetadata(Orientation.Horizontal, OnOrientationPropertyChanged));
 
         /// <summary>
         /// 初始化 WrapPanel 类的新实例。
