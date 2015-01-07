@@ -7,22 +7,22 @@ using Windows.UI.Xaml.Controls;
 namespace SoftwareKobo.UI.WinRT.Controls
 {
     /// <summary>
-    /// 从左至右按顺序位置定位子元素，在包含框的边缘处将内容断开至下一行。后续排序按照从上至下或从右至左的顺序进行，具体取决于 WrapPanel.Orientation 属性的值。
+    /// 从左至右按顺序位置定位子元素，在包含框的边缘处将内容断开至下一行。后续排序按照从上至下或从右至左的顺序进行，具体取决于 Orientation 属性的值。
     /// </summary>
     public class WrapPanel : Panel
     {
         /// <summary>
-        /// 标识 WrapPanel.ItemHeight 依赖项属性。
+        /// 标识 ItemHeight 依赖项属性。
         /// </summary>
         public static readonly DependencyProperty ItemHeightProperty = DependencyProperty.Register(nameof(ItemHeight), typeof(double), typeof(WrapPanel), new PropertyMetadata(double.NaN, OnItemWidthOrHeightPropertyChanged));
 
         /// <summary>
-        /// 标识 WrapPanel.ItemWidth 依赖项属性。
+        /// 标识 ItemWidth 依赖项属性。
         /// </summary>
         public static readonly DependencyProperty ItemWidthProperty = DependencyProperty.Register(nameof(ItemWidth), typeof(double), typeof(WrapPanel), new PropertyMetadata(double.NaN, OnItemWidthOrHeightPropertyChanged));
 
         /// <summary>
-        /// 标识 WrapPanel.Orientation 依赖项属性。
+        /// 标识 Orientation 依赖项属性。
         /// </summary>
         public static readonly DependencyProperty OrientationProperty = DependencyProperty.Register(nameof(Orientation), typeof(Orientation), typeof(WrapPanel), new PropertyMetadata(Orientation.Horizontal, OnOrientationPropertyChanged));
 
@@ -86,16 +86,22 @@ namespace SoftwareKobo.UI.WinRT.Controls
         /// <returns>Size，表示此 WrapPanel 元素及其子元素的排列大小。</returns>
         protected override Size ArrangeOverride(Size finalSize)
         {
+            // TODO update this code as WPF
+            // http://referencesource.microsoft.com/#PresentationFramework/Framework/System/Windows/Controls/WrapPanel.cs,3bc2a79a29053fb3
+
+            double itemWidth = ItemWidth;
+            double itemHeight = ItemHeight;
+
             OrientedSize currentLineSize = new OrientedSize(Orientation);
             OrientedSize maximumSize = new OrientedSize(Orientation, finalSize.Width, finalSize.Height);
 
-            bool hasFixedWidth = double.IsNaN(ItemWidth) == false;
-            bool hasFixedHeight = double.IsNaN(ItemHeight) == false;
+            bool hasFixedWidth = double.IsNaN(itemWidth) == false;
+            bool hasFixedHeight = double.IsNaN(itemHeight) == false;
 
             double indirectOffset = 0.0d;
             double? directDelta = (Orientation == Orientation.Horizontal) ?
-                (hasFixedWidth ? (double?)ItemWidth : null) :
-                (hasFixedHeight ? (double?)ItemHeight : null);
+                (hasFixedWidth ? (double?)itemWidth : null) :
+                (hasFixedHeight ? (double?)itemHeight : null);
 
             int lineStart = 0;
 
@@ -103,7 +109,7 @@ namespace SoftwareKobo.UI.WinRT.Controls
             {
                 UIElement element = Children[lineEnd];
 
-                OrientedSize elementSize = new OrientedSize(Orientation, hasFixedWidth ? ItemWidth : element.DesiredSize.Width, hasFixedHeight ? ItemHeight : element.DesiredSize.Height);
+                OrientedSize elementSize = new OrientedSize(Orientation, hasFixedWidth ? itemWidth : element.DesiredSize.Width, hasFixedHeight ? itemHeight : element.DesiredSize.Height);
 
                 if (currentLineSize.Direct + elementSize.Direct > maximumSize.Direct)
                 {
@@ -137,7 +143,7 @@ namespace SoftwareKobo.UI.WinRT.Controls
         }
 
         /// <summary>
-        /// 测量 WrapPanel 的子元素，以便准备在 WrapPanel.ArrangeOverride(Size) 处理过程中排列它们。
+        /// 测量 WrapPanel 的子元素，以便准备在 ArrangeOverride 处理过程中排列它们。
         /// </summary>
         /// <param name="availableSize">不能超过的上限 Size。</param>
         /// <returns>Size，表示元素的所需大小。</returns>
@@ -146,36 +152,43 @@ namespace SoftwareKobo.UI.WinRT.Controls
             OrientedSize currentLineSize = new OrientedSize(Orientation);
             OrientedSize totalSize = new OrientedSize(Orientation);
             OrientedSize maximumSize = new OrientedSize(Orientation, availableSize.Width, availableSize.Height);
+            double itemWidth = ItemWidth;
+            double itemHeight = ItemHeight;
+            bool itemWidthSet = double.IsNaN(itemWidth) == false;
+            bool itemHeightSet = double.IsNaN(itemHeight) == false;
 
-            bool hasFixedWidth = double.IsNaN(ItemWidth) == false;
-            bool hasFixedHeight = double.IsNaN(ItemHeight) == false;
+            Size childConstraint = new Size(itemWidthSet ? itemWidth : availableSize.Width, itemHeightSet ? itemHeight : availableSize.Height);
 
-            Size itemSize = new Size(hasFixedWidth ? ItemWidth : availableSize.Width, hasFixedHeight ? ItemHeight : availableSize.Height);
+            UIElementCollection children = Children;
 
-            foreach (UIElement element in Children)
+            foreach (UIElement child in children)
             {
-                element.Measure(itemSize);
-                OrientedSize elementSize = new OrientedSize(Orientation, hasFixedWidth ? ItemWidth : element.DesiredSize.Width, hasFixedHeight ? ItemHeight : element.DesiredSize.Height);
+                if (child == null)
+                {
+                    continue;
+                }
 
-                if (currentLineSize.Direct + elementSize.Direct > maximumSize.Direct)
+                child.Measure(childConstraint);
+
+                OrientedSize childSize = new OrientedSize(Orientation, itemWidthSet ? itemWidth : child.DesiredSize.Width, itemHeightSet ? itemHeight : child.DesiredSize.Height);
+
+                if (currentLineSize.Direct + childSize.Direct > maximumSize.Direct)// 需要切换到下一行。
                 {
                     totalSize.Direct = Max(currentLineSize.Direct, totalSize.Direct);
                     totalSize.Indirect += currentLineSize.Indirect;
+                    currentLineSize = childSize;
 
-                    currentLineSize = elementSize;
-
-                    if (elementSize.Direct > maximumSize.Direct)
+                    if (childSize.Direct > maximumSize.Direct)
                     {
-                        totalSize.Direct = Max(elementSize.Direct, totalSize.Direct);
-                        totalSize.Indirect += elementSize.Indirect;
-
+                        totalSize.Direct = Max(childSize.Direct, totalSize.Direct);
+                        totalSize.Indirect += childSize.Indirect;
                         currentLineSize = new OrientedSize(Orientation);
                     }
                 }
-                else
+                else// 继续在当前行。
                 {
-                    currentLineSize.Direct += elementSize.Direct;
-                    currentLineSize.Indirect = Max(currentLineSize.Indirect, elementSize.Indirect);
+                    currentLineSize.Direct += childSize.Direct;
+                    currentLineSize.Indirect = Max(currentLineSize.Indirect, childSize.Indirect);
                 }
             }
 
@@ -194,7 +207,7 @@ namespace SoftwareKobo.UI.WinRT.Controls
             {
                 source.SetValue(e.Property, (double)e.OldValue);
 
-                throw new InvalidOperationException("数值范围错误。");
+                throw new ArgumentException("数值范围错误。");
             }
 
             source.InvalidateMeasure();
@@ -209,7 +222,7 @@ namespace SoftwareKobo.UI.WinRT.Controls
             {
                 source.SetValue(e.Property, (Orientation)e.OldValue);
 
-                throw new InvalidOperationException("方向未定义。");
+                throw new ArgumentException("方向未定义。");
             }
 
             source.InvalidateMeasure();
